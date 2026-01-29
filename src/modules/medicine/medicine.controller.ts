@@ -1,9 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { medicineService } from "./medicine.service";
 
-const getAllMedicine = async () => {
-  console.log("hello form ");
-};
+const getAllMedicine = async () => {};
 
 const createMedicine = async (
   req: Request,
