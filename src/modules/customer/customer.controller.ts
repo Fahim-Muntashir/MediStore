@@ -1,10 +1,5 @@
-// src/modules/customer/customer.controller.ts
 import { Request, Response, NextFunction } from "express";
 import { customerService } from "./customer.service";
-
-// -----------------------------
-// Individual controller functions
-// -----------------------------
 
 const getCart = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -89,9 +84,6 @@ const updateProfile = async (
   }
 };
 
-// -----------------------------
-// Export all controllers as a single object
-// -----------------------------
 export const CustomerController = {
   getCart,
   getCheckout,

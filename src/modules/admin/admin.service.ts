@@ -1,4 +1,3 @@
-// src/modules/admin/admin.service.ts
 import { prisma } from "../../lib/prisma";
 import { OrderStatus } from "../../../generated/prisma/enums";
 
@@ -11,7 +10,6 @@ const getDashboard = async () => {
 
   const totalOrders = orders.length;
 
-  // Calculate total revenue from items (price * quantity)
   const totalRevenue = orders.reduce(
     (sum, order) =>
       sum + order.items.reduce((s, item) => s + item.price * item.quantity, 0),
@@ -77,7 +75,6 @@ const deleteCategory = async (id: string) => {
   return prisma.category.delete({ where: { id } });
 };
 
-// ✅ Export all in the same style as medicineService
 export const adminService = {
   getDashboard,
   getUsers,
