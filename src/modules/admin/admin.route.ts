@@ -6,10 +6,8 @@ import { AdminController } from "./admin.controller";
 
 const router = express.Router();
 
-// Dashboard
 router.get("/", auth(UserRole.ADMIN), AdminController.getDashboard);
 
-// Users
 router.get("/users", auth(UserRole.ADMIN), AdminController.getUsers);
 router.put("/users/:id", auth(UserRole.ADMIN), AdminController.updateUser);
 router.delete("/users/:id", auth(UserRole.ADMIN), AdminController.deleteUser);
