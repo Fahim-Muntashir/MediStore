@@ -6,7 +6,7 @@ import { MedicineController } from "./medicine.controller";
 const router = express.Router();
 
 router.get("/", MedicineController.getAllMedicine);
-router.post("/", auth(UserRole.CUSTOMER), MedicineController.createMedicine);
+router.post("/", auth(UserRole.SELLER), MedicineController.createMedicine);
 
 // get single medicine
 router.get("/:id", MedicineController.getMedicineById);

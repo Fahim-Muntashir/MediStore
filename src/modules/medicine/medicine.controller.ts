@@ -35,6 +35,8 @@ const createMedicine = async (
         error: "Unauthorized",
       });
     }
+
+    console.log(req.body);
     const result = await medicineService.createMedicine(
       req.body,
       user.id as string,
