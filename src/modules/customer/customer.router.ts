@@ -1,4 +1,3 @@
-// src/modules/customer/customer.routes.ts
 import { Router } from "express";
 import { auth, UserRole } from "../../middlewares/auth";
 import { CustomerController } from "./customer.controller";
