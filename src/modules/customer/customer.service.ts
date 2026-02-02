@@ -1,9 +1,26 @@
 import { prisma } from "../../lib/prisma";
-
 const getCart = async (userId: string) => {
-  return prisma.cart.findMany({
+  return prisma.cart.findUnique({
     where: { userId },
-    include: { items: true },
+    include: {
+      items: {
+        include: {
+          medicine: {
+            include: {
+              categories: true,
+              reviews: true,
+              seller: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 };
 
