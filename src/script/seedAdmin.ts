@@ -11,7 +11,7 @@ async function seedAdmin() {
       role: UserRole.ADMIN,
       password: "admin12345@1234",
     };
-    // check user exists on db or not
+
     const existingUser = await prisma.user.findUnique({
       where: {
         email: adminData.email,

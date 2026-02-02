@@ -24,6 +24,7 @@ const getCheckout = async (req: Request, res: Response, next: NextFunction) => {
 
 const placeOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log(req.body);
     const userId = req.user?.id!;
     const order = await customerService.placeOrder(userId, req.body);
     res.status(201).json(order);

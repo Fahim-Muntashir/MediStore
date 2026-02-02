@@ -26,29 +26,33 @@ enum OrderStatus {
   DELIVERED
   CANCELLED
 }
+enum PaymentMethod {
+  cod
+  online
+}
 
 model User {
-  id              String     @id @default(cuid())
+  id              String             @id @default(cuid())
   name            String
   email           String
-  emailVerified   Boolean    @default(false)
+  emailVerified   Boolean            @default(false)
   image           String?
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
   role            Role?
   phone           String?
-  status          String?    @default("ACTIVE")
+  status          String?            @default("ACTIVE")
   sessions        Session[]
   accounts        Account[]
   medicine        Medicine[]
-  order           Order[]
+  orders           Order[]
   revies          Review[]
   cart            Cart?
-  shippingAddress String?
-
+  shippingAddress String?            
   @@unique([email])
   @@map("user")
 }
+
 
 model Session {
   id        String   @id
@@ -124,18 +128,16 @@ model Medicine {
   @@map("medicine")
 }
 
-model Order {
-  id        String      @id @default(ulid())
-  userId    String
-  status    OrderStatus @default(PLACED)
-  address   String
-  items     OrderItem[]
-  user      User        @relation(fields: [userId], references: [id])
-  reviews   Review[]
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
 
-  @@map("order")
+model Order {
+  id            String        @id @default(uuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  totalPrice    Float
+  address       Json
+  paymentMethod PaymentMethod
+  items         OrderItem[]
+  reviews       Review[]
 }
 
 model OrderItem {
@@ -150,6 +152,9 @@ model OrderItem {
   updatedAt  DateTime @updatedAt
 }
 
+
+
+
 model Review {
   id         String   @id @default(uuid())
   rating     Int
@@ -157,12 +162,13 @@ model Review {
   userId     String
   medicineId String
   orderId    String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
   order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
+
 
 model Cart {
   id        String     @id @default(uuid())

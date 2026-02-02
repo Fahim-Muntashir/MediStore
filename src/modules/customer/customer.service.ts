@@ -25,7 +25,6 @@ const getCart = async (userId: string) => {
 };
 
 const getCheckout = async (userId: string) => {
-  // Fetch cart items
   const cart = await prisma.cart.findMany({
     where: { userId },
     include: { items: true },
@@ -36,9 +35,57 @@ const getCheckout = async (userId: string) => {
   return { cart, address };
 };
 
-const placeOrder = async (userId: string, data: any) => {
-  // TODO: implement order placement logic
-  return { success: true, userId, data };
+const placeOrder = async (
+  userId: string,
+  data: {
+    address: {
+      name: string;
+      phone: string;
+      street: string;
+      city: string;
+      postalCode: string;
+    };
+    paymentMethod: "cod" | "online";
+  },
+) => {
+  // Get the user's cart
+  const cart = await prisma.cart.findUnique({
+    where: { userId },
+    include: { items: { include: { medicine: true } } },
+  });
+
+  if (!cart || cart.items.length === 0) {
+    throw new Error("Cart is empty");
+  }
+
+  // Calculate total price
+  const totalPrice = cart.items.reduce(
+    (sum, item) => sum + item.quantity * item.medicine.price,
+    0,
+  );
+
+  // Create the order
+  const order = await prisma.order.create({
+    data: {
+      user: { connect: { id: userId } },
+      paymentMethod: data.paymentMethod, // ✅ TS now recognizes this
+      totalPrice,
+      address: data.address,
+      items: {
+        create: cart.items.map((item) => ({
+          medicineId: item.medicineId,
+          quantity: item.quantity,
+          price: item.medicine.price,
+        })),
+      },
+    },
+    include: { items: true },
+  });
+
+  // Clear the cart
+  await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
+
+  return order;
 };
 
 const getOrders = async (userId: string) => {
@@ -68,27 +115,23 @@ const addToCart = async (
   productId: string,
   quantity: number = 1,
 ) => {
-  // Check if the user already has a cart
   let cart = await prisma.cart.findFirst({ where: { userId } });
 
   if (!cart) {
     cart = await prisma.cart.create({ data: { userId } });
   }
 
-  // Check if the product is already in cart
   const existingItem = await prisma.cartItem.findFirst({
     where: { cartId: cart.id, medicineId: productId },
   });
 
   if (existingItem) {
-    // Update quantity
     return prisma.cartItem.update({
       where: { id: existingItem.id },
       data: { quantity: existingItem.quantity + quantity },
     });
   }
 
-  // Add new item
   return prisma.cartItem.create({
     data: {
       cartId: cart.id,
