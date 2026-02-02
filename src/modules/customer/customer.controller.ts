@@ -5,6 +5,7 @@ const getCart = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id!;
     const cart = await customerService.getCart(userId);
+    console.log(cart);
     res.status(200).json(cart);
   } catch (err) {
     next(err);
@@ -83,6 +84,26 @@ const updateProfile = async (
     next(err);
   }
 };
+const addToCart = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.id!;
+    const { productId, quantity } = req.body;
+
+    if (!productId) {
+      return res.status(400).json({ error: "Product ID is required" });
+    }
+
+    const cartItem = await customerService.addToCart(
+      userId,
+      productId,
+      quantity || 1,
+    );
+
+    res.status(201).json(cartItem);
+  } catch (err) {
+    next(err);
+  }
+};
 
 export const CustomerController = {
   getCart,
@@ -92,4 +113,5 @@ export const CustomerController = {
   getOrderById,
   getProfile,
   updateProfile,
+  addToCart,
 };

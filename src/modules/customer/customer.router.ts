@@ -8,7 +8,7 @@ const router = Router();
 router.use(auth(UserRole.CUSTOMER));
 
 router.get("/cart", CustomerController.getCart);
-
+router.post("/cart/add", CustomerController.addToCart);
 router.get("/checkout", CustomerController.getCheckout);
 router.post("/checkout", CustomerController.placeOrder);
 

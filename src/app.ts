@@ -19,7 +19,7 @@ app.use(
 app.use(express.json());
 
 app.all("/api/auth/*splat", toNodeHandler(auth));
-app.use("/api/customer", customerRouter);
+app.use("/api/v1/customer", customerRouter);
 app.use("/api/v1/medicine", medicineRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/seller", sellerRouter);

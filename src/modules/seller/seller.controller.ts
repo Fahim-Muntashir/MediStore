@@ -22,6 +22,7 @@ const getMedicines = async (
 ) => {
   try {
     const sellerId = req.user?.id!;
+    console.log(sellerId);
     const medicines = await sellerService.getMedicines(sellerId);
     res.status(200).json(medicines);
   } catch (err) {

@@ -10,4 +10,5 @@ router.post("/", auth(UserRole.SELLER), MedicineController.createMedicine);
 
 // get single medicine
 router.get("/:id", MedicineController.getMedicineById);
+
 export const medicineRouter: Router = router;
