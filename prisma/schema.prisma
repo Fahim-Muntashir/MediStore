@@ -21,11 +21,14 @@ enum Role {
 
 enum OrderStatus {
   PLACED
+  PENDING 
   PROCESSING
   SHIPPED
   DELIVERED
   CANCELLED
 }
+
+
 enum PaymentMethod {
   cod
   online
@@ -135,9 +138,12 @@ model Order {
   user          User          @relation(fields: [userId], references: [id])
   totalPrice    Float
   address       Json
+  status        OrderStatus   @default(PENDING)  
   paymentMethod PaymentMethod
   items         OrderItem[]
   reviews       Review[]
+
+  @@map("order")
 }
 
 model OrderItem {

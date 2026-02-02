@@ -68,7 +68,7 @@ const placeOrder = async (
   const order = await prisma.order.create({
     data: {
       user: { connect: { id: userId } },
-      paymentMethod: data.paymentMethod, // ✅ TS now recognizes this
+      paymentMethod: data.paymentMethod,
       totalPrice,
       address: data.address,
       items: {
