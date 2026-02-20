@@ -7,22 +7,23 @@ const getAllMedicine = async (
   next: NextFunction,
 ) => {
   try {
-    const { category, minPrice, maxPrice, manufacturer } = req.query;
+    const { search, category, manufacturer, minPrice, maxPrice } = req.query;
 
     const filter: Partial<MedicineFilter> = {};
 
+    if (search) filter.search = search as string;
     if (category) filter.category = category as string;
     if (manufacturer) filter.manufacturer = manufacturer as string;
     if (minPrice !== undefined) filter.minPrice = Number(minPrice);
     if (maxPrice !== undefined) filter.maxPrice = Number(maxPrice);
 
     const result = await medicineService.getAllMedicine(filter);
-    return res.status(200).json(result);
+
+    res.status(200).json(result);
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
-
 const createMedicine = async (
   req: Request,
   res: Response,

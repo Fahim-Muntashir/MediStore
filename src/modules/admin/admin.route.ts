@@ -9,7 +9,9 @@ const router = express.Router();
 router.get("/", auth(UserRole.ADMIN), AdminController.getDashboard);
 
 router.get("/users", auth(UserRole.ADMIN), AdminController.getUsers);
+
 router.put("/users/:id", auth(UserRole.ADMIN), AdminController.updateUser);
+
 router.delete("/users/:id", auth(UserRole.ADMIN), AdminController.deleteUser);
 
 // Orders
@@ -21,17 +23,13 @@ router.put(
 );
 
 // Categories
-router.get("/categories", auth(UserRole.ADMIN), AdminController.getCategories);
+router.get("/categories", AdminController.getCategories);
 router.post(
   "/categories",
-  auth(UserRole.ADMIN),
+
   AdminController.createCategory,
 );
-router.put(
-  "/categories/:id",
-  auth(UserRole.ADMIN),
-  AdminController.updateCategory,
-);
+router.put("/categories/:id", AdminController.updateCategory);
 router.delete(
   "/categories/:id",
   auth(UserRole.ADMIN),

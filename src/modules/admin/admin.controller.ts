@@ -77,6 +77,7 @@ export const AdminController = {
   createCategory: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name } = req.body;
+      console.log(name);
       const category = await adminService.createCategory(name);
       res.status(201).json(category);
     } catch (err) {

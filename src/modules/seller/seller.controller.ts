@@ -81,6 +81,7 @@ const deleteMedicine = async (
 const getOrders = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const sellerId = req.user?.id!;
+    console.log(sellerId, "Hello Motherfucker");
     const orders = await sellerService.getOrders(sellerId);
     res.status(200).json(orders);
   } catch (err) {

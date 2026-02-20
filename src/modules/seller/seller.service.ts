@@ -49,7 +49,6 @@ const getOrders = async (sellerId: string) => {
     where: { sellerId },
     select: { id: true },
   });
-
   const medicineIds = medicines.map((m) => m.id);
 
   if (medicineIds.length === 0) {
@@ -71,9 +70,6 @@ const getOrders = async (sellerId: string) => {
         },
       },
       user: true,
-    },
-    orderBy: {
-      createdAt: "desc",
     },
   });
 };

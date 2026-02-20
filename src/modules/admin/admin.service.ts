@@ -46,7 +46,6 @@ const getOrders = async () => {
       user: true,
       items: { include: { medicine: true } },
     },
-    orderBy: { createdAt: "desc" },
   });
 };
 
@@ -64,7 +63,23 @@ const getCategories = async () => {
 };
 
 const createCategory = async (name: string) => {
-  return prisma.category.create({ data: { name } });
+  if (!name || !name.trim()) throw new Error("Invalid category name");
+
+  const baseSlug = name.trim().toLowerCase().replace(/\s+/g, "-");
+
+  let slug = baseSlug;
+  let counter = 1;
+
+  while (await prisma.category.findUnique({ where: { slug } })) {
+    slug = `${baseSlug}-${counter++}`;
+  }
+
+  return prisma.category.create({
+    data: {
+      name: name.trim(),
+      slug,
+    },
+  });
 };
 
 const updateCategory = async (id: string, name: string) => {

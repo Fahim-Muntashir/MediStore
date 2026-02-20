@@ -2,6 +2,7 @@ import { Medicine, Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 
 export interface MedicineFilter {
+  search?: string;
   category?: string;
   minPrice?: number;
   maxPrice?: number;
@@ -22,30 +23,50 @@ const getAllMedicine = async (filter?: MedicineFilter) => {
   const where: any = {};
 
   if (filter) {
-    if (filter.category) {
-      where.categories = { some: { name: filter.category } };
+    // 🔎 Search by name
+    if (filter.search) {
+      where.name = {
+        contains: filter.search,
+        mode: "insensitive",
+      };
     }
+
+    // 📂 Filter by category
+    if (filter.category) {
+      where.categories = {
+        some: {
+          name: filter.category,
+        },
+      };
+    }
+
+    // 🏭 Filter by manufacturer
     if (filter.manufacturer) {
       where.manufacturer = {
         contains: filter.manufacturer,
         mode: "insensitive",
       };
     }
-    if (filter.minPrice || filter.maxPrice) {
+
+    // 💰 Filter by price range
+    if (filter.minPrice !== undefined || filter.maxPrice !== undefined) {
       where.price = {};
-      if (filter.minPrice) where.price.gte = filter.minPrice;
-      if (filter.maxPrice) where.price.lte = filter.maxPrice;
+      if (filter.minPrice !== undefined) where.price.gte = filter.minPrice;
+      if (filter.maxPrice !== undefined) where.price.lte = filter.maxPrice;
     }
   }
 
-  const result = await prisma.medicine.findMany({
+  return prisma.medicine.findMany({
     where,
     include: {
-      categories: { select: { name: true } },
-      seller: { select: { id: true, name: true } },
+      categories: {
+        select: { id: true, name: true },
+      },
+      seller: {
+        select: { id: true, name: true },
+      },
     },
   });
-  return result;
 };
 
 const createMedicine = async (

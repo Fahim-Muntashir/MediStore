@@ -48,44 +48,81 @@ const placeOrder = async (
     paymentMethod: "cod" | "online";
   },
 ) => {
-  // Get the user's cart
   const cart = await prisma.cart.findUnique({
     where: { userId },
-    include: { items: { include: { medicine: true } } },
+    include: {
+      items: {
+        include: {
+          medicine: true,
+        },
+      },
+    },
   });
 
   if (!cart || cart.items.length === 0) {
     throw new Error("Cart is empty");
   }
 
-  // Calculate total price
-  const totalPrice = cart.items.reduce(
-    (sum, item) => sum + item.quantity * item.medicine.price,
-    0,
+  const itemsBySeller = cart.items.reduce(
+    (acc, item) => {
+      const sellerId = item.medicine.sellerId;
+
+      if (!acc[sellerId]) {
+        acc[sellerId] = [];
+      }
+
+      acc[sellerId].push(item);
+
+      return acc;
+    },
+    {} as Record<string, typeof cart.items>,
   );
 
-  // Create the order
-  const order = await prisma.order.create({
-    data: {
-      user: { connect: { id: userId } },
-      paymentMethod: data.paymentMethod,
-      totalPrice,
-      address: data.address,
-      items: {
-        create: cart.items.map((item) => ({
-          medicineId: item.medicineId,
-          quantity: item.quantity,
-          price: item.medicine.price,
-        })),
+  const orders = [];
+
+  for (const sellerId of Object.keys(itemsBySeller)) {
+    const sellerItems = itemsBySeller[sellerId];
+
+    if (!sellerItems || sellerItems.length === 0) continue;
+
+    const totalPrice = sellerItems.reduce(
+      (sum, item) => sum + item.quantity * item.medicine.price,
+      0,
+    );
+
+    const order = await prisma.order.create({
+      data: {
+        userId,
+        sellerId,
+        paymentMethod: data.paymentMethod,
+        totalPrice,
+        address: data.address,
+        items: {
+          create: sellerItems.map((item) => ({
+            medicineId: item.medicineId,
+            quantity: item.quantity,
+            price: item.medicine.price,
+          })),
+        },
       },
-    },
-    include: { items: true },
+      include: {
+        items: {
+          include: {
+            medicine: true,
+          },
+        },
+        user: true,
+      },
+    });
+
+    orders.push(order);
+  }
+
+  await prisma.cartItem.deleteMany({
+    where: { cartId: cart.id },
   });
 
-  // Clear the cart
-  await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
-
-  return order;
+  return orders;
 };
 
 const getOrders = async (userId: string) => {
@@ -100,14 +137,6 @@ const getOrderById = async (userId: string, orderId: string) => {
     where: { id: orderId, userId },
     include: { items: true },
   });
-};
-
-const getProfile = async (userId: string) => {
-  return prisma.user.findUnique({ where: { id: userId } });
-};
-
-const updateProfile = async (userId: string, data: any) => {
-  return prisma.user.update({ where: { id: userId }, data });
 };
 
 const addToCart = async (
@@ -147,7 +176,6 @@ export const customerService = {
   placeOrder,
   getOrders,
   getOrderById,
-  getProfile,
-  updateProfile,
+
   addToCart,
 };

@@ -15,7 +15,4 @@ router.get("/orders", CustomerController.getOrders);
 
 router.get("/orders/:id", CustomerController.getOrderById);
 
-router.get("/profile", CustomerController.getProfile);
-router.put("/profile", CustomerController.updateProfile);
-
 export const customerRouter = router;

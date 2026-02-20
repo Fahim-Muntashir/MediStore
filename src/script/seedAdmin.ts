@@ -9,7 +9,7 @@ async function seedAdmin() {
       name: "Admin",
       email: "admin@admin.com",
       role: UserRole.ADMIN,
-      password: "admin12345@1234",
+      password: "admin@admin.com",
     };
 
     const existingUser = await prisma.user.findUnique({
@@ -23,7 +23,8 @@ async function seedAdmin() {
     }
 
     const signUpAdmin = await fetch(
-      "http://localhost:5000/api/auth/sign-up/email",
+      // "https://medistore-eight.vercel.app/api/auth/sign-up/email",
+      "http://localhost:5000/api/auth/sign-up/email", //add here the online link
       {
         method: "POST",
         headers: {

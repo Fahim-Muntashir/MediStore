@@ -62,29 +62,6 @@ const getOrderById = async (
   }
 };
 
-const getProfile = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const userId = req.user?.id!;
-    const profile = await customerService.getProfile(userId);
-    res.status(200).json(profile);
-  } catch (err) {
-    next(err);
-  }
-};
-
-const updateProfile = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const userId = req.user?.id!;
-    const profile = await customerService.updateProfile(userId, req.body);
-    res.status(200).json(profile);
-  } catch (err) {
-    next(err);
-  }
-};
 const addToCart = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id!;
@@ -112,7 +89,5 @@ export const CustomerController = {
   placeOrder,
   getOrders,
   getOrderById,
-  getProfile,
-  updateProfile,
   addToCart,
 };

@@ -21,41 +21,46 @@ enum Role {
 
 enum OrderStatus {
   PLACED
-  PENDING 
+  PENDING
   PROCESSING
   SHIPPED
   DELIVERED
   CANCELLED
 }
 
-
 enum PaymentMethod {
   cod
   online
 }
 
+enum CategoryStatus {
+  ACTIVE
+  INACTIVE
+}
+
 model User {
-  id              String             @id @default(cuid())
+  id              String     @id @default(cuid())
   name            String
   email           String
-  emailVerified   Boolean            @default(false)
+  emailVerified   Boolean    @default(false)
   image           String?
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
   role            Role?
   phone           String?
-  status          String?            @default("ACTIVE")
+  status          String?    @default("ACTIVE")
   sessions        Session[]
   accounts        Account[]
   medicine        Medicine[]
-  orders           Order[]
+  orders          Order[] // ✅ customer orders
+  sellerOrders    Order[]    @relation("SellerOrders") // ✅ seller orders
   revies          Review[]
   cart            Cart?
-  shippingAddress String?            
+  shippingAddress String?
+
   @@unique([email])
   @@map("user")
 }
-
 
 model Session {
   id        String   @id
@@ -108,6 +113,9 @@ model Verification {
 model Category {
   id        String     @id @default(uuid())
   name      String     @unique
+  slug      String?    @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   medicines Medicine[] @relation("MedicineCategories")
 }
 
@@ -121,7 +129,7 @@ model Medicine {
   manufacturer String
   sellerId     String
   seller       User        @relation(fields: [sellerId], references: [id])
-  categories   Category[]  @relation("MedicineCategories")
+  categories   Category[]  @relation("MedicineCategories") // Many-to-many
   reviews      Review[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
@@ -131,14 +139,15 @@ model Medicine {
   @@map("medicine")
 }
 
-
 model Order {
   id            String        @id @default(uuid())
   userId        String
+  sellerId      String
   user          User          @relation(fields: [userId], references: [id])
+  seller        User          @relation("SellerOrders", fields: [sellerId], references: [id])
   totalPrice    Float
   address       Json
-  status        OrderStatus   @default(PENDING)  
+  status        OrderStatus   @default(PENDING)
   paymentMethod PaymentMethod
   items         OrderItem[]
   reviews       Review[]
@@ -158,9 +167,6 @@ model OrderItem {
   updatedAt  DateTime @updatedAt
 }
 
-
-
-
 model Review {
   id         String   @id @default(uuid())
   rating     Int
@@ -174,7 +180,6 @@ model Review {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
-
 
 model Cart {
   id        String     @id @default(uuid())
