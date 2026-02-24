@@ -12,7 +12,7 @@ router.get("/checkout", CustomerController.getCheckout);
 router.post("/checkout", CustomerController.placeOrder);
 
 router.get("/orders", CustomerController.getOrders);
-
+router.post("/orders/:orderId/review", CustomerController.leaveReview);
 router.get("/orders/:id", CustomerController.getOrderById);
 
 export const customerRouter = router;

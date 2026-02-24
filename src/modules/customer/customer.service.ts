@@ -128,7 +128,13 @@ const placeOrder = async (
 const getOrders = async (userId: string) => {
   return prisma.order.findMany({
     where: { userId },
-    include: { items: true },
+    include: {
+      items: {
+        include: {
+          medicine: true, // optional if you want name
+        },
+      },
+    },
   });
 };
 
@@ -145,7 +151,7 @@ const addToCart = async (
   quantity: number = 1,
 ) => {
   let cart = await prisma.cart.findFirst({ where: { userId } });
-
+  console.log("hello ");
   if (!cart) {
     cart = await prisma.cart.create({ data: { userId } });
   }
@@ -169,13 +175,68 @@ const addToCart = async (
     },
   });
 };
+const leaveReview = async (
+  userId: string,
+  orderId: string,
+  data: {
+    medicineId: string;
+    rating: number;
+    comment?: string;
+  },
+) => {
+  // 1️⃣ Check order exists and belongs to user
+  const order = await prisma.order.findFirst({
+    where: {
+      id: orderId,
+      userId,
+    },
+    include: {
+      items: true,
+    },
+  });
 
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  // 2️⃣ Check medicine is part of this order
+  const orderedItem = order.items.find(
+    (item) => item.medicineId === data.medicineId,
+  );
+
+  if (!orderedItem) {
+    throw new Error("You cannot review this product");
+  }
+
+  // 3️⃣ Prevent duplicate review
+  const existingReview = await prisma.review.findFirst({
+    where: {
+      userId,
+      orderId,
+      medicineId: data.medicineId,
+    },
+  });
+
+  if (existingReview) {
+    throw new Error("You already reviewed this product");
+  }
+
+  return prisma.review.create({
+    data: {
+      userId,
+      orderId,
+      medicineId: data.medicineId,
+      rating: data.rating,
+      comment: data.comment ?? null, // ✅ FIX
+    },
+  });
+};
 export const customerService = {
   getCart,
   getCheckout,
   placeOrder,
   getOrders,
   getOrderById,
-
+  leaveReview,
   addToCart,
 };

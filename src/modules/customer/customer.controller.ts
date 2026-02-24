@@ -21,7 +21,38 @@ const getCheckout = async (req: Request, res: Response, next: NextFunction) => {
     next(err);
   }
 };
+const leaveReview = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
 
+    const rawOrderId = req.params.orderId;
+    const orderId = Array.isArray(rawOrderId) ? rawOrderId[0] : rawOrderId;
+
+    if (!orderId) {
+      return res.status(400).json({ error: "Invalid order ID" });
+    }
+
+    const { medicineId, rating, comment } = req.body;
+
+    if (!medicineId || rating == null) {
+      return res.status(400).json({
+        error: "Medicine ID and rating are required",
+      });
+    }
+
+    const review = await customerService.leaveReview(userId, orderId, {
+      medicineId: String(medicineId),
+      rating: Number(rating),
+      comment: comment ?? null,
+    });
+    res.status(201).json(review);
+  } catch (err) {
+    next(err);
+  }
+};
 const placeOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     console.log(req.body);
@@ -65,6 +96,8 @@ const getOrderById = async (
 const addToCart = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id!;
+
+    console.log("heelo");
     const { productId, quantity } = req.body;
 
     if (!productId) {
@@ -90,4 +123,5 @@ export const CustomerController = {
   getOrders,
   getOrderById,
   addToCart,
+  leaveReview,
 };

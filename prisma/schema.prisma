@@ -170,7 +170,7 @@ model OrderItem {
 model Review {
   id         String   @id @default(uuid())
   rating     Int
-  comment    String
+  comment    String?
   userId     String
   medicineId String
   orderId    String
