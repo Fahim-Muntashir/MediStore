@@ -5,16 +5,16 @@ const getDashboard = async () => {
   const totalUsers = await prisma.user.count();
 
   const orders = await prisma.order.findMany({
-    include: { items: true },
+    include: { 
+      items: true,
+      user: true 
+    },
+    orderBy: { createdAt: "desc" },
   });
 
   const totalOrders = orders.length;
 
-  const totalRevenue = orders.reduce(
-    (sum, order) =>
-      sum + order.items.reduce((s, item) => s + item.price * item.quantity, 0),
-    0,
-  );
+  const totalRevenue = orders.reduce((sum, order) => sum + order.totalPrice, 0);
 
   return { totalUsers, totalOrders, totalRevenue, orders };
 };
@@ -62,7 +62,7 @@ const getCategories = async () => {
   });
 };
 
-const createCategory = async (name: string) => {
+const createCategory = async (name: string, image?: string) => {
   if (!name || !name.trim()) throw new Error("Invalid category name");
 
   const baseSlug = name.trim().toLowerCase().replace(/\s+/g, "-");
@@ -78,12 +78,19 @@ const createCategory = async (name: string) => {
     data: {
       name: name.trim(),
       slug,
+      image: image || null,
     },
   });
 };
 
-const updateCategory = async (id: string, name: string) => {
-  return prisma.category.update({ where: { id }, data: { name } });
+const updateCategory = async (id: string, name: string, image?: string) => {
+  return prisma.category.update({
+    where: { id },
+    data: {
+      name,
+      ...(image !== undefined && { image }),
+    },
+  });
 };
 
 const deleteCategory = async (id: string) => {

@@ -72,3 +72,8 @@ export type Cart = Prisma.CartModel
  * 
  */
 export type CartItem = Prisma.CartItemModel
+/**
+ * Model Blog
+ * 
+ */
+export type Blog = Prisma.BlogModel

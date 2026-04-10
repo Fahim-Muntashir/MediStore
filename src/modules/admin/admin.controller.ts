@@ -1,6 +1,7 @@
 // src/modules/admin/admin.controller.ts
 import { Request, Response, NextFunction } from "express";
 import { adminService } from "./admin.service";
+import { uploadToCloudinary } from "../../lib/cloudinary";
 
 export const AdminController = {
   getDashboard: async (req: Request, res: Response, next: NextFunction) => {
@@ -77,8 +78,13 @@ export const AdminController = {
   createCategory: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name } = req.body;
-      console.log(name);
-      const category = await adminService.createCategory(name);
+      let { image } = req.body;
+
+      if (req.file) {
+        image = await uploadToCloudinary(req.file);
+      }
+
+      const category = await adminService.createCategory(name, image);
       res.status(201).json(category);
     } catch (err) {
       next(err);
@@ -89,7 +95,13 @@ export const AdminController = {
     try {
       const { id } = req.params;
       const { name } = req.body;
-      const category = await adminService.updateCategory(id as string, name);
+      let { image } = req.body;
+
+      if (req.file) {
+        image = await uploadToCloudinary(req.file);
+      }
+
+      const category = await adminService.updateCategory(id as string, name, image);
       res.status(200).json(category);
     } catch (err) {
       next(err);

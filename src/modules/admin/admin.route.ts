@@ -1,12 +1,12 @@
 // src/modules/admin/admin.route.ts
-import express from "express";
-import { Router } from "express";
+import express, { Router } from "express";
 import { auth, UserRole } from "../../middlewares/auth";
 import { AdminController } from "./admin.controller";
+import { upload } from "../../middlewares/upload";
 
 const router = express.Router();
 
-router.get("/", auth(UserRole.ADMIN), AdminController.getDashboard);
+router.get("/dashboard", auth(UserRole.ADMIN), AdminController.getDashboard);
 
 router.get("/users", auth(UserRole.ADMIN), AdminController.getUsers);
 
@@ -26,10 +26,16 @@ router.put(
 router.get("/categories", AdminController.getCategories);
 router.post(
   "/categories",
-
-  AdminController.createCategory,
+  auth(UserRole.ADMIN),
+  upload.single("image"),
+  AdminController.createCategory
 );
-router.put("/categories/:id", AdminController.updateCategory);
+router.put(
+  "/categories/:id", 
+  auth(UserRole.ADMIN), 
+  upload.single("image"),
+  AdminController.updateCategory
+);
 router.delete(
   "/categories/:id",
   auth(UserRole.ADMIN),

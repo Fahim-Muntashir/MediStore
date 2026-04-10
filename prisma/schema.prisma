@@ -114,6 +114,7 @@ model Category {
   id        String     @id @default(uuid())
   name      String     @unique
   slug      String?    @unique
+  image     String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   medicines Medicine[] @relation("MedicineCategories")
@@ -129,6 +130,7 @@ model Medicine {
   manufacturer String
   sellerId     String
   seller       User        @relation(fields: [sellerId], references: [id])
+  isFeatured   Boolean     @default(false)
   categories   Category[]  @relation("MedicineCategories") // Many-to-many
   reviews      Review[]
   createdAt    DateTime    @default(now())
@@ -151,6 +153,9 @@ model Order {
   paymentMethod PaymentMethod
   items         OrderItem[]
   reviews       Review[]
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now()) @updatedAt
 
   @@map("order")
 }
@@ -203,4 +208,17 @@ model CartItem {
   updatedAt  DateTime @updatedAt
 
   @@map("cartItem")
+}
+
+model Blog {
+  id        String   @id @default(uuid())
+  title     String
+  excerpt   String
+  content   String
+  image     String
+  author    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("blog")
 }

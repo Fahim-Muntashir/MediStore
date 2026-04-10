@@ -115,8 +115,44 @@ const getMedicineById = async (id: string) => {
   });
   return medicine;
 };
+const getFeaturedMedicines = async () => {
+  return prisma.medicine.findMany({
+    where: { isFeatured: true },
+    include: {
+      categories: { select: { id: true, name: true } },
+      seller: { select: { id: true, name: true } },
+    },
+    take: 8, // Limit featured items
+  });
+};
+
+const updateMedicineFeatured = async (id: string, isFeatured: boolean) => {
+  return prisma.medicine.update({
+    where: { id },
+    data: { isFeatured },
+  });
+};
+
+const getPopularMedicines = async () => {
+  return prisma.medicine.findMany({
+    include: {
+      categories: { select: { id: true, name: true } },
+      seller: { select: { id: true, name: true } },
+    },
+    orderBy: {
+      orderItems: {
+        _count: "desc",
+      },
+    },
+    take: 8,
+  });
+};
+
 export const medicineService = {
   createMedicine,
   getAllMedicine,
   getMedicineById,
+  getFeaturedMedicines,
+  updateMedicineFeatured,
+  getPopularMedicines,
 };
