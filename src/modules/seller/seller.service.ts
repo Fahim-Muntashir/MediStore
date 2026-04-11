@@ -25,18 +25,33 @@ const getMedicines = async (sellerId: string) => {
 };
 
 const createMedicine = async (data: any, sellerId: string) => {
+  const { categories, ...rest } = data;
   return prisma.medicine.create({
     data: {
-      ...data,
+      ...rest,
       sellerId,
+      categories: {
+        connect: categories?.map((id: string) => ({ id })) || [],
+      },
     },
+    include: { categories: true },
   });
 };
 
 const updateMedicine = async (id: string, data: any, sellerId: string) => {
-  return prisma.medicine.updateMany({
-    where: { id, sellerId },
-    data,
+  const { categories, ...rest } = data;
+  return prisma.medicine.update({
+    where: { id },
+    data: {
+      ...rest,
+      categories: categories
+        ? {
+            set: [], // Clear existing relations
+            connect: categories.map((catId: string) => ({ id: catId })),
+          }
+        : undefined,
+    },
+    include: { categories: true },
   });
 };
 

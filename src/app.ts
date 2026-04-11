@@ -8,6 +8,8 @@ import { adminRouter } from "./modules/admin/admin.route";
 import { sellerRouter } from "./modules/seller/seller.router";
 import { profileRouter } from "./modules/profile/profile.route";
 import { blogRoutes } from "./modules/blog/blog.route";
+import { uploadRoutes } from "./modules/upload/upload.route";
+import { paymentRouter } from "./modules/payment/payment.route";
 
 const app: Application = express();
 
@@ -20,6 +22,9 @@ app.use(
   }),
 );
 
+app.use("/api/v1/payment", paymentRouter);
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -30,6 +35,7 @@ app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/seller", sellerRouter);
 app.use("/api/v1/profile", profileRouter);
 app.use("/api/v1/blogs", blogRoutes);
+app.use("/api/v1/upload", uploadRoutes);
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });

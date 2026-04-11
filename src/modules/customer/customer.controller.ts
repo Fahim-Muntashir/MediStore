@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { customerService } from "./customer.service";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_dummy");
 
 const getCart = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -57,8 +60,41 @@ const placeOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     console.log(req.body);
     const userId = req.user?.id!;
-    const order = await customerService.placeOrder(userId, req.body);
-    res.status(201).json(order);
+    const orders = await customerService.placeOrder(userId, req.body);
+    
+    if (req.body.paymentMethod === "online") {
+      const line_items: any[] = [];
+      
+      orders.forEach((order) => {
+        order.items.forEach((item) => {
+          line_items.push({
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: item.medicine.name,
+              },
+              unit_amount: Math.round(item.price * 100),
+            },
+            quantity: item.quantity,
+          });
+        });
+      });
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items,
+        mode: "payment",
+        success_url: `${process.env.APP_URL || "http://localhost:3000"}/dashboard/my-orders?success=true`,
+        cancel_url: `${process.env.APP_URL || "http://localhost:3000"}/checkout?canceled=true`,
+        metadata: {
+          orderIds: JSON.stringify(orders.map((o) => o.id)),
+        },
+      });
+
+      return res.status(201).json({ url: session.url, orders });
+    }
+
+    res.status(201).json({ orders });
   } catch (err) {
     next(err);
   }

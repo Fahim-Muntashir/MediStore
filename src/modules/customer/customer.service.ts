@@ -95,6 +95,7 @@ const placeOrder = async (
         userId,
         sellerId,
         paymentMethod: data.paymentMethod,
+        status: data.paymentMethod === "cod" ? "PLACED" : "PENDING",
         totalPrice,
         address: data.address,
         items: {
@@ -239,4 +240,14 @@ export const customerService = {
   getOrderById,
   leaveReview,
   addToCart,
+  handlePaymentSuccess: async (orderIds: string[]) => {
+    return prisma.order.updateMany({
+      where: {
+        id: { in: orderIds },
+      },
+      data: {
+        status: "PLACED",
+      },
+    });
+  },
 };

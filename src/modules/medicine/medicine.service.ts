@@ -73,17 +73,6 @@ const createMedicine = async (
   data: createMedicinePayload,
   sellerId: string,
 ) => {
-  const categoryRecords = await Promise.all(
-    data.categories.map(async (name) => {
-      return prisma.category.upsert({
-        where: { name },
-        update: {},
-        create: { name },
-      });
-    }),
-  );
-
-  console.log(data);
   const result = await prisma.medicine.create({
     data: {
       name: data.name,
@@ -94,7 +83,7 @@ const createMedicine = async (
       manufacturer: data.manufacturer,
       sellerId,
       categories: {
-        connect: categoryRecords.map((c) => ({ id: c.id })),
+        connect: data.categories.map((id) => ({ id })),
       },
     },
     include: {
